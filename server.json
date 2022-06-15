@@ -1,0 +1,15 @@
+{
+  "data": [
+    {
+      "cpf": "229.175.898-50",
+      "producer": "Diego",
+      "farmName": "DZF",
+      "city": "Japaratinga",
+      "state": "Alagoas",
+      "totalArea": 0,
+      "arableArea": 0,
+      "vegetationArea": 0,
+      "crops": []
+    }
+  ]
+}
