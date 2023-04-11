@@ -9,6 +9,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   color?: string;
   labelColor?: string;
   border?: string;
+  disabled?: boolean
 }
 
 export const Button = ({ onClick, label, ...rest }: ButtonProps) => {

@@ -8,7 +8,6 @@ interface InputProps {
   type?: "text" | "number" | "password";
   placeholder?: string;
   control: any;
-  isFirst?: boolean;
   error?: any;
 }
 
@@ -18,7 +17,6 @@ export const InputNumber: React.FC<InputProps> = ({
   type = "text",
   placeholder,
   control,
-  isFirst,
   error,
 }) => {
   return (

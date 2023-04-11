@@ -36,9 +36,7 @@ export const Input: React.FC<InputProps> = ({
         render={({ field }) => (
           <div>
             {label && <label htmlFor={name}>{label}</label>}
-            {control?._fields[name]?._f?.value?.length === 0 ? (
-              <InputDefault {...field} type={type} placeholder={placeholder} />
-            ) : mask || maskType ? (
+            {mask || maskType ? (
               <InputM
                 mask={
                   mask
@@ -51,7 +49,7 @@ export const Input: React.FC<InputProps> = ({
                 {...field}
               />
             ) : (
-              <InputDefault {...field} type={type} placeholder={placeholder} />
+              <InputDefault {...field} placeholder={placeholder} />
             )}
           </div>
         )}

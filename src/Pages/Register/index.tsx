@@ -35,6 +35,7 @@ export const Register = () => {
   const {
     control,
     handleSubmit,
+    formState,
     formState: { errors },
     reset,
     watch,
@@ -235,7 +236,12 @@ export const Register = () => {
         />
       </Container>
 
-      <Button label="salvar" onClick={handleSubmit(handleOnSave)} inline />
+      <Button
+        label="salvar"
+        onClick={handleSubmit(handleOnSave)}
+        inline
+        disabled={Object.keys(formState.dirtyFields).length < 9}
+      />
     </Layout>
   );
 };

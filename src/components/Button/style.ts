@@ -5,6 +5,7 @@ interface ButtonProps {
   color?: string;
   labelColor?: string;
   border?: string;
+  disabled?: boolean;
 }
 
 export const Container = styled.button<ButtonProps>`
@@ -40,4 +41,12 @@ export const Container = styled.button<ButtonProps>`
       : css`
           border: 1px solid ${color ? color : theme.colors.primary};
         `}
+
+        ${({ theme, disabled }) =>
+    disabled &&
+    css`
+      background-color: ${theme.colors.tertiary};
+      border-color: ${theme.colors.tertiary};
+      cursor: not-allowed;
+    `}
 `;
