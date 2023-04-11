@@ -1,12 +1,12 @@
 export const plantationOptions = [
-  { id: '1', label: "Soja" },
-  { id: '2', label: "Milho" },
-  { id: '3', label: "Algodão" },
-  { id: '4', label: "Café" },
-  { id: '5', label: "Cana de Açucar" },
+  { value: '1', label: "Soja" },
+  { value: '2', label: "Milho" },
+  { value: '3', label: "Algodão" },
+  { value: '4', label: "Café" },
+  { value: '5', label: "Cana de Açucar" },
 ];
 
 export interface PlantationOptionProps {
-  id: number;
+  value: string;
   label: string;
 }
