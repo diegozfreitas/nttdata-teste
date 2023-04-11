@@ -1,4 +1,3 @@
-import React from "react";
 import { useSelector } from "react-redux";
 import { VictoryPie } from "victory";
 
@@ -26,7 +25,7 @@ export const Graphics = () => {
               data={dataByStates(farms)}
               x="state"
               y="count"
-              labels={({ datum }) => `${datum.count}: ${datum.state}`}
+              labels={({ datum }) => `${datum.count}: ${datum.stateName}`}
               colorScale={["tomato", "orange", "gold", "cyan", "navy"]}
             />
           </Graphic>

@@ -12,11 +12,11 @@ export const dataByCultures = (farms: IFarm[]) => {
   let counter = 0;
 
   farms.map((item) => {
-    item.cultures.map((culture) => {
+    item.cultures.map((culture: any) => {
       if (!refCultures.includes(culture)) {
         refCultures.push(culture);
         CountCultures.push({
-          name: plantationOptions.find((item) => item.id === culture)!?.label,
+          name: plantationOptions.find((item) => item.value === culture)!?.label,
           count: counter++,
         });
       }
