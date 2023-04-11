@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,12 +8,9 @@ import swal from "sweetalert";
 import axios from "axios";
 
 import { Layout } from "../../components/Layout";
-import { InputRHF } from "../../components/FormRHF/InputRHF";
-import { Select } from "../../components/Form/Select";
-import { Checkbox } from "../../components/Form/Checkbox";
 import { Button } from "../../components/Button";
+import { Input, InputNumber, Radio, Select } from "../../components";
 
-import { ContainerCropsPlanted, CropsPlantedChecks, LabelError } from "./style";
 import { plantationOptions } from "../../Utils/plantationOptions";
 
 import { ValidationsSchema } from "./validationForm";
@@ -22,14 +19,12 @@ import { SaveFarm, UpdateFarm } from "../../store/modules/farms/actions";
 import { IState } from "../../store";
 import { IFarm } from "../../store/modules/farms/types";
 
-import { FormData, ResponseStatesReq, StatesProps } from "./types";
-import { SelectRHF } from "../../components/FormRHF/SelectRHF";
+import { FormData, ResponseStatesReq, StatesProps, CitiesProps } from "./types";
+import { Container } from "./style";
 
 export const Register = () => {
   const [states, setStates] = useState<StatesProps[]>([]);
-  const [stateSelected, setStateSelected] = useState<string>("");
-  const [cultures, setCultures] = useState<string[]>([]);
-  const [error, setError] = useState({ state: "", cultures: "" });
+  const [cities, setCities] = useState<CitiesProps[]>([]);
 
   const { idfarm: idFarm } = useParams();
   let navigate = useNavigate();
@@ -47,17 +42,26 @@ export const Register = () => {
     resolver: yupResolver(ValidationsSchema),
   });
 
+  const stateField = watch("state");
+
   useEffect(() => {
     (async () => {
-      const result: { data: ResponseStatesReq[] } = await axios.get(
-        "https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome"
-      );
+      const statesStorage = await localStorage.getItem("states");
+      if (statesStorage === null) {
+        const result: { data: ResponseStatesReq[] } = await axios.get(
+          "https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome"
+        );
 
-      const formattedStates = result?.data.map((item: ResponseStatesReq) => {
-        return { value: item.nome, label: item.nome };
-      });
+        const formattedStates = result?.data.map((item: ResponseStatesReq) => {
+          return { value: String(item.id), label: item.nome };
+        });
 
-      setStates(formattedStates);
+        setStates(formattedStates);
+
+        await localStorage.setItem("states", JSON.stringify(formattedStates));
+      } else {
+        setStates(JSON.parse(statesStorage!));
+      }
     })();
 
     if (idFarm === undefined) return;
@@ -72,10 +76,9 @@ export const Register = () => {
       totalArea: data.totalArea,
       arableArea: data.arableArea,
       vegetationArea: data.vegetationArea,
+      cultures: data.cultures,
+      state: data.state,
     });
-
-    setStateSelected(data.state);
-    setCultures(data.cultures);
 
     return () => {
       reset({
@@ -86,43 +89,43 @@ export const Register = () => {
         totalArea: 0,
         arableArea: 0,
         vegetationArea: 0,
+        cultures: [],
+        state: "",
       });
-      setStateSelected("");
-      setCultures([]);
     };
+    // eslint-disable-next-line
   }, [idFarm]);
 
-  const validationsExtras = () => {
-    if (stateSelected === "") {
-      setError({ ...error, state: "É necessário selecionar um estado." });
-      return;
-    }
+  useMemo(() => {
+    if (stateField === undefined) return;
 
-    if (cultures.length <= 0) {
-      setError({
-        ...error,
-        cultures: "É necessário selecionar um ao menos 1 cultura",
+    (async () => {
+      const result: { data: ResponseStatesReq[] } = await axios.get(
+        `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${stateField}/municipios`
+      );
+
+      const formattedCities = result?.data.map((item: ResponseStatesReq) => {
+        return { value: String(item.id), label: item.nome };
       });
-      return;
-    }
-  };
+
+      setCities(formattedCities);
+    })();
+  }, [stateField]);
 
   const handleOnSave = (data: FormData) => {
-    validationsExtras();
-
     if (idFarm !== undefined) {
       const payloadData = {
         id: idFarm,
         ...data,
-        state: stateSelected,
-
-        cultures: cultures,
+        cultures: data.cultures.filter(
+          (item: any) => item !== null && item !== undefined
+        ),
       };
 
       dispatch(UpdateFarm(payloadData));
 
       swal({
-        title: "Sucesso",
+        title: "Success",
         text: "Atualizado atualizado!",
         icon: "success",
       });
@@ -130,8 +133,9 @@ export const Register = () => {
       const payloadData = {
         id: uuid(),
         ...data,
-        state: stateSelected,
-        cultures: cultures,
+        cultures: data.cultures.filter(
+          (item: any) => item !== null && item !== undefined
+        ),
       };
 
       dispatch(SaveFarm(payloadData));
@@ -142,114 +146,94 @@ export const Register = () => {
       });
     }
     reset();
-    setCultures([]);
     navigate("/farms");
     return;
-  };
-
-  const handleAddOrRemoveCultureItem = (item: string) => {
-    if (cultures.includes(item)) {
-      var index = cultures.indexOf(item);
-      if (index !== -1) {
-        cultures.splice(index, 1);
-        setCultures((cultures) => [...cultures]);
-        return;
-      }
-    }
-    setCultures([...cultures, item]);
   };
 
   return (
     <Layout
       title={idFarm !== undefined ? "Editar Fazenda" : "Cadastrar Fazenda"}
     >
-      <InputRHF
-        label="CPF ou CNPJ"
-        name="document"
-        maskType={
-          watch("document")?.replace(/[^0-9]+/g, "") === undefined ||
-          watch("document")?.replace(/[^0-9]+/g, "").length <= 11
-            ? "cpf"
-            : "cnpj"
-        }
-        control={control}
-        error={errors.document && errors.document?.message}
-      />
+      <Container>
+        <Input
+          label="CPF ou CNPJ"
+          name="document"
+          maskType={
+            watch("document")?.replace(/[^0-9]+/g, "") === undefined ||
+            watch("document")?.replace(/[^0-9]+/g, "").length <= 11
+              ? "cpf"
+              : "cnpj"
+          }
+          control={control}
+          error={errors.document && errors.document?.message}
+        />
 
-      <InputRHF
-        label="Nome do produtor"
-        name="producerName"
-        control={control}
-        error={errors.producerName && errors.producerName?.message}
-      />
+        <Input
+          label="Nome do produtor"
+          name="producerName"
+          control={control}
+          error={errors.producerName && errors.producerName?.message}
+        />
 
-      <InputRHF
-        label="Nome da Fazenda"
-        name="farmName"
-        control={control}
-        error={errors.farmName && errors.farmName?.message}
-      />
+        <Input
+          label="Nome da Fazenda"
+          name="farmName"
+          control={control}
+          error={errors.farmName && errors.farmName?.message}
+        />
 
-      <Select
-        data={states}
-        label="Estado"
-        value={stateSelected}
-        onChange={(obj: StatesProps) => {
-          setError({ ...error, state: "" });
-          setStateSelected(obj.value);
-        }}
-        error={error.state}
-      />
+        {states.length === 0 ? (
+          "carregado estados"
+        ) : (
+          <Select
+            label="Estado"
+            options={states}
+            name="state"
+            control={control}
+            error={errors.state && errors.state?.message}
+          />
+        )}
 
-      <InputRHF
-        label="Cidade"
-        name="city"
-        control={control}
-        error={errors.city && errors.city?.message}
-      />
+        <Select
+          label="Cidade"
+          options={cities}
+          name="city"
+          control={control}
+          error={errors.city && errors.city?.message}
+        />
 
-      <InputRHF
-        label="Area Total (em hectares)"
-        name="totalArea"
-        type="number"
-        control={control}
-        error={errors.totalArea && errors.totalArea?.message}
-      />
+        <InputNumber
+          label="Area Total (em hectares)"
+          name="totalArea"
+          type="number"
+          control={control}
+          error={errors.totalArea && errors.totalArea?.message}
+        />
 
-      <InputRHF
-        label="Área de agricultável (em hectares)"
-        name="arableArea"
-        type="number"
-        control={control}
-        error={errors.arableArea && errors.arableArea?.message}
-      />
+        <InputNumber
+          label="Área de agricultável (em hectares)"
+          name="arableArea"
+          type="number"
+          control={control}
+          error={errors.arableArea && errors.arableArea?.message}
+        />
 
-      <InputRHF
-        label="Área de vegetação (em hectares)"
-        name="vegetationArea"
-        type="number"
-        control={control}
-        error={errors.vegetationArea && errors.vegetationArea?.message}
-      />
+        <InputNumber
+          label="Área de vegetação (em hectares)"
+          name="vegetationArea"
+          type="number"
+          control={control}
+          error={errors.vegetationArea && errors.vegetationArea?.message}
+        />
 
-      <h3>Culturas plantadas</h3>
-
-      <ContainerCropsPlanted>
-        <CropsPlantedChecks>
-          {plantationOptions.map((item) => (
-            <Checkbox
-              key={item.id}
-              label={item.label}
-              selected={cultures.includes(item.id)}
-              onClick={() => {
-                setError({ ...error, cultures: "" });
-                handleAddOrRemoveCultureItem(item.id);
-              }}
-            />
-          ))}
-        </CropsPlantedChecks>
-        {error.cultures !== "" && <LabelError>{error.cultures}</LabelError>}
-      </ContainerCropsPlanted>
+        <Radio
+          name="cultures"
+          label="Culturas plantadas"
+          options={plantationOptions}
+          control={control}
+          error={errors.cultures && errors.cultures?.message}
+        />
+      </Container>
 
       <Button label="salvar" onClick={handleSubmit(handleOnSave)} inline />
     </Layout>
