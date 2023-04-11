@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { Controller } from "react-hook-form";
 import { InputM, Input as InputDefault } from "./style";
 
@@ -8,7 +8,6 @@ interface InputProps {
   type?: "text" | "number" | "password";
   placeholder?: string;
   control: any;
-  isFirst?: boolean;
   error?: any;
   mask?: string;
   maskType?: string;
