@@ -6,6 +6,8 @@ export interface FormData {
   totalArea: number;
   arableArea: number;
   vegetationArea: number;
+  cultures: any;
+  state: any;
 }
 
 export interface ResponseStatesReq {
@@ -23,4 +25,7 @@ export interface StatesProps {
   value: string;
   label: string;
 }
-
+export interface CitiesProps {
+  value: string;
+  label: string;
+}

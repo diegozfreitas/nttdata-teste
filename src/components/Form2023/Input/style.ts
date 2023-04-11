@@ -10,25 +10,10 @@ const inputsCss = css`
   color: ${({ theme }) => theme.colors.text};
 `;
 
-export const Container = styled.div`
-  margin-bottom: 8px;
-`;
-
-export const Label = styled.span`
-  font-size: 14px;
-`;
-
 export const InputM = styled(InputMask)`
   ${inputsCss}
 `;
 
 export const Input = styled.input`
   ${inputsCss}
-`;
-
-export const LabelError = styled.span`
-  font-size: 10px;
-  color: ${({ theme }) => theme.colors.alert};
-  margin-top: -6px;
-  margin-bottom: 8px;
 `;

@@ -8,7 +8,7 @@ export interface IFarm {
   totalArea: number;
   arableArea: number;
   vegetationArea: number;
-  cultures: string[];
+  cultures: string | any;
 }
 
 export interface IFarmState {
