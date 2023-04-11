@@ -22,8 +22,7 @@ export const Farms = () => {
   const dispatch = useDispatch();
 
   const configTable = [
-    { label: "id", path: "id", size: 33 },
-    { label: "Nome da Fazenda", path: "farmName", size: 33 },
+    { label: "Nome da Fazenda", path: "farmName", size: 55 },
     { label: "Estado", path: "state", size: 10 },
     { label: "AreaTotal", path: "totalArea", size: 33 },
     {
@@ -52,7 +51,7 @@ export const Farms = () => {
           </ButtonAction>
         </>
       ),
-      size: 33,
+      size: 10,
     },
   ];
 
