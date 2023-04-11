@@ -240,7 +240,7 @@ export const Register = () => {
         label="salvar"
         onClick={handleSubmit(handleOnSave)}
         inline
-        disabled={Object.keys(formState.dirtyFields).length < 9}
+        disabled={idFarm !== undefined ? false : Object.keys(formState.dirtyFields).length < 9}
       />
     </Layout>
   );
